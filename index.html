@@ -12,8 +12,9 @@ body { margin:0; background:var(--bg); color:var(--fg); font-family:"Segoe UI",A
 main { max-width:1080px; margin:0 auto; padding:32px 16px 48px; display:flex; flex-direction:column; gap:20px; }
 h1 { font-family:"Frank Ruhl Libre","David",Georgia,serif; font-weight:500; font-size:2rem; margin:0; }
 h2 { font-size:1.1rem; font-weight:600; margin:0 0 4px; }
+h3 { font-size:.95rem; font-weight:600; margin:18px 0 0; }
 .asof, .note { color:var(--muted); font-size:.85rem; margin:0; }
-.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:14px; }
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:14px; }
 .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; min-width:0; }
 .lbl { color:var(--muted); font-size:.85rem; }
 .num { font-family:"Frank Ruhl Libre","David",Georgia,serif; font-size:2.6rem; line-height:1.1; margin-top:6px; font-variant-numeric:tabular-nums; }
@@ -24,6 +25,12 @@ ul.chips li { display:flex; gap:8px; align-items:baseline; padding:8px 12px; bor
 ul.chips li.fix { background:var(--warnbg); color:var(--warn); }
 ul.chips li span { margin-inline-start:auto; font-size:.8rem; white-space:nowrap; }
 ul.chips li.none { background:none; color:var(--muted); }
+ul.files { list-style:none; padding:0; margin:8px 0 0; }
+ul.files li { display:flex; gap:8px; align-items:baseline; padding:8px 0; border-top:1px solid var(--line); font-size:.9rem; }
+ul.files .t { flex:1; min-width:0; }
+ul.files .dt { color:var(--muted); font-size:.8rem; white-space:nowrap; }
+ul.files a { color:var(--accent); font-weight:600; text-decoration:none; white-space:nowrap; }
+ul.files a:hover { text-decoration:underline; }
 .row { margin-top:18px; }
 .top { display:flex; justify-content:space-between; align-items:baseline; }
 .big { font-family:"Frank Ruhl Libre","David",Georgia,serif; font-size:1.8rem; font-variant-numeric:tabular-nums; }
@@ -32,6 +39,23 @@ ul.chips li.none { background:none; color:var(--muted); }
 .small .bar { height:10px; } .small .bar i { background:var(--plan); }
 .small .lbl2, .small .big { color:var(--muted); font-size:1rem; }
 .scale { display:flex; justify-content:space-between; color:var(--muted); font-size:.75rem; margin-top:4px; }
+details.more > summary { cursor:pointer; list-style:none; display:inline-block; padding:9px 18px; border:1px solid var(--line); border-radius:999px; background:var(--panel); }
+details.more > summary::-webkit-details-marker { display:none; }
+details.more > summary::after { content:" ▾"; color:var(--muted); }
+details.more[open] > summary::after { content:" ▴"; }
+.more-body { display:flex; flex-direction:column; gap:14px; margin-top:16px; }
+.scroll { overflow-x:auto; margin-top:10px; }
+table { width:100%; border-collapse:collapse; font-size:.85rem; }
+th { text-align:start; font-weight:600; color:var(--muted); padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+td { padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+tbody tr:last-child td { border-bottom:0; }
+td.k { font-weight:600; white-space:nowrap; }
+td.d { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.st { display:inline-block; padding:1px 9px; border-radius:999px; font-size:.78rem; white-space:nowrap; border:1px solid transparent; }
+.st.ok { background:var(--okbg); color:var(--ok); }
+.st.fix, .st.late { background:var(--warnbg); color:var(--warn); }
+.st.now { border-color:var(--accent); color:var(--accent); }
+.st.wait, .st.future { border-color:var(--line); color:var(--muted); }
 footer { color:var(--muted); font-size:.8rem; text-align:center; }
 </style>
 </head>
@@ -42,7 +66,8 @@ footer { color:var(--muted); font-size:.8rem; text-align:center; }
     <p class="asof">עודכן: י׳ חשון, 10:48</p>
   </header>
   <section class="kpis">
-    <div class="card"><div class="lbl">פרקים שעברו מיון סופי</div><div class="num">3</div><div class="sub">מתוך 18 פרקים</div></div>
+    <div class="card"><div class="lbl">פרקים שעברו מיון סופי</div><div class="num">3</div><div class="sub">מתוך 18 פרקים · ועוד חלק המוסר</div></div>
+    <div class="card"><div class="lbl">פרקים שעברו מיון בסיסי</div><div class="num">6</div><div class="sub">מתוך 18 פרקים · 4 במיון עכשיו</div></div>
     <div class="card"><div class="lbl">עמודים גמורים (הערכה)</div><div class="num">76</div><div class="sub">מתוך 588 בספר כולו</div></div>
     <div class="card"><div class="lbl">עמודי חומר שעברו מיון בסיסי</div><div class="num">636</div><div class="sub">מתוך 2,750 עמודי חומר</div></div>
     <div class="card"><div class="lbl">מהעבודה כולה כבר נעשה</div><div class="num">16%</div><div class="sub">מיון בסיסי וסופי של כל הפרקים</div></div>
@@ -50,7 +75,8 @@ footer { color:var(--muted); font-size:.8rem; text-align:center; }
   <section class="two">
     <div class="card">
       <h2>הפרקים שעברו מיון סופי</h2>
-      <ul class="chips"><li class="ok"><b>ט׳</b> עבודת התפילה<span>מוכן</span></li><li class="ok"><b>יב׳</b> על טהרת הקודש<span>מוכן</span></li><li class="fix"><b>א׳</b> יסודות חינוך הבנים<span>בתיקונים אחרונים</span></li></ul>
+      <ul class="chips"><li class="ok"><b>ט׳</b> עבודת התפילה<span>מוכן</span></li><li class="ok"><b>יב׳</b> על טהרת הקודש<span>מוכן</span></li><li class="fix"><b>א׳</b> יסודות חינוך הבנים<span>בתיקונים אחרונים</span></li><li class="ok"><b>י׳</b> יראת שמים ולימוד המוסר — חלק המוסר<span>מוכן</span></li></ul>
+      <h3>הקבצים הסופיים</h3><ul class="files"><li><b>ט׳</b><span class="t">עבודת התפילה</span><span class="dt">ח׳ חשון</span><a href="files/6ad8f665dcaed747679227cedf1cb9ad.pdf" target="_blank" rel="noopener">פתיחה</a></li><li><b>יב׳</b><span class="t">על טהרת הקודש</span><span class="dt">ח׳ חשון</span><a href="files/1908230b6f009499077b6bf55f70a925.pdf" target="_blank" rel="noopener">פתיחה</a></li><li><b>א׳</b><span class="t">יסודות חינוך הבנים</span><span class="dt">י׳ חשון</span><a href="files/3760f8162ea4f2a4bf72e84b3d1da96b.pdf" target="_blank" rel="noopener">פתיחה</a></li><li><b>י׳</b><span class="t">יראת שמים ולימוד המוסר — חלק מוסר</span><span class="dt">כ״ו תשרי</span><a href="files/bd6748eb425e6ab6ac8e72c875da0336.pdf" target="_blank" rel="noopener">פתיחה</a></li></ul>
     </div>
     <div class="card">
       <h2>ההתקדמות עד הסוף</h2>
@@ -60,6 +86,10 @@ footer { color:var(--muted); font-size:.8rem; text-align:center; }
       <div class="scale"><span>0%</span><span>100%</span></div></div>
     </div>
   </section>
+  <details class="more">
+    <summary>פירוט מלא: לוח הזמנים של כל הפרקים</summary>
+    <div class="more-body"><div class="card"><h2>קו 1</h2><p class="note">ממיין בסיסי 1 ← ממיין סופי 1</p><div class="scroll"><table><thead><tr><th>פרק</th><th>שם</th><th>מצב</th><th>מיון בסיסי (תכנית)</th><th>התקבל</th><th>מיון סופי (תכנית)</th><th>התקבל</th><th>עמודי חומר</th></tr></thead><tbody><tr><td class="k">ט׳</td><td>עבודת התפילה</td><td><span class="st ok">עבר מיון סופי</span></td><td class="d">לפני התכנית</td><td class="d">✓</td><td class="d">ג׳ חשון</td><td class="d">✓ ח׳ חשון</td><td class="d">99</td></tr><tr><td class="k">יב׳</td><td>על טהרת הקודש</td><td><span class="st ok">עבר מיון סופי</span></td><td class="d">לפני התכנית</td><td class="d">✓</td><td class="d">ג׳–ז׳ חשון</td><td class="d">✓ ח׳ חשון</td><td class="d">61</td></tr><tr><td class="k">א׳</td><td>יסודות חינוך הבנים</td><td><span class="st fix">עבר מיון סופי · בתיקונים אחרונים</span></td><td class="d">ג׳–ד׳ חשון</td><td class="d">✓ ז׳ חשון</td><td class="d">ז׳–ט׳ חשון</td><td class="d">✓ י׳ חשון</td><td class="d">118</td></tr><tr><td class="k">יז׳</td><td>נושאים ציבוריים</td><td><span class="st now">במיון סופי</span></td><td class="d">ד׳–ז׳ חשון</td><td class="d">✓ י׳ חשון</td><td class="d">ט׳–י׳ חשון</td><td class="d"></td><td class="d">89</td></tr><tr><td class="k">ה׳</td><td>דרך הלימוד</td><td><span class="st late">מיון בסיסי באיחור</span></td><td class="d">ז׳–ח׳ חשון</td><td class="d"></td><td class="d">י״א–ט״ז חשון</td><td class="d"></td><td class="d">178</td></tr><tr><td class="k">ג׳</td><td>ושננתם לבניך — הדרכת המחנך</td><td><span class="st now">במיון בסיסי</span></td><td class="d">ח׳–י׳ חשון</td><td class="d"></td><td class="d">ט״ז–כ״א חשון</td><td class="d"></td><td class="d">135</td></tr><tr><td class="k">יא׳</td><td>עבודת המידות ובין אדם לחברו</td><td><span class="st now">במיון בסיסי</span></td><td class="d">י׳–ט״ו חשון</td><td class="d"></td><td class="d">כ״א–כ״ד חשון</td><td class="d"></td><td class="d">363</td></tr><tr><td class="k">יד׳</td><td>אמונה וביטחון וקבלת ייסורים</td><td><span class="st future">טרם התחיל</span></td><td class="d">ט״ו–י״ח חשון</td><td class="d"></td><td class="d">כ״ד–כ״ט חשון</td><td class="d"></td><td class="d">269</td></tr><tr><td class="k">ב׳</td><td>התמודדויות בחינוך ונוער מתמודד</td><td><span class="st future">טרם התחיל</span></td><td class="d">י״ח–כ״א חשון</td><td class="d"></td><td class="d">כ״ט חשון – א׳ כסלו</td><td class="d"></td><td class="d">65</td></tr></tbody></table></div></div><div class="card"><h2>קו 2</h2><p class="note">ממיין בסיסי 2 ← ממיין סופי 2</p><div class="scroll"><table><thead><tr><th>פרק</th><th>שם</th><th>מצב</th><th>מיון בסיסי (תכנית)</th><th>התקבל</th><th>מיון סופי (תכנית)</th><th>התקבל</th><th>עמודי חומר</th></tr></thead><tbody><tr><td class="k">טז׳</td><td>בין הזמנים ויומא דפגרא</td><td><span class="st now">במיון סופי</span></td><td class="d">ג׳–ח׳ חשון</td><td class="d">✓ ח׳ חשון</td><td class="d">י׳ חשון</td><td class="d"></td><td class="d">84</td></tr><tr><td class="k">טו׳</td><td>פרנסה והשתדלות</td><td><span class="st late">מיון בסיסי באיחור</span></td><td class="d">ט׳ חשון</td><td class="d"></td><td class="d">י׳–י״א חשון</td><td class="d"></td><td class="d">66</td></tr><tr><td class="k">יג׳</td><td>במיעוט תענוג והסתפקות</td><td><span class="st now">במיון בסיסי</span></td><td class="d">ט׳–י׳ חשון</td><td class="d"></td><td class="d">י״א חשון</td><td class="d"></td><td class="d">50</td></tr><tr><td class="k">ד׳</td><td>אהבת התורה וטעמה</td><td><span class="st now">במיון בסיסי</span></td><td class="d">י׳–ט״ו חשון</td><td class="d"></td><td class="d">י״ד–י״ז חשון</td><td class="d"></td><td class="d">375</td></tr><tr><td class="k">ו׳</td><td>עמלה של תורה וגדלות האדם</td><td><span class="st future">טרם התחיל</span></td><td class="d">ט״ו–כ״א חשון</td><td class="d"></td><td class="d">י״ז–כ״ב חשון</td><td class="d"></td><td class="d">311</td></tr><tr><td class="k">ח׳</td><td>המעבר לישיבה גדולה</td><td><span class="st future">טרם התחיל</span></td><td class="d">כ״א חשון</td><td class="d"></td><td class="d">כ״ב–כ״ד חשון</td><td class="d"></td><td class="d">78</td></tr><tr><td class="k">ז׳</td><td>חיי הישיבה</td><td><span class="st future">טרם התחיל</span></td><td class="d">כ״א–כ״ג חשון</td><td class="d"></td><td class="d">כ״ד–כ״ט חשון</td><td class="d"></td><td class="d">139</td></tr><tr><td class="k">יח׳</td><td>גזרת הגיוס</td><td><span class="st future">טרם התחיל</span></td><td class="d">כ״ג–כ״ד חשון</td><td class="d"></td><td class="d">כ״ט חשון – א׳ כסלו</td><td class="d"></td><td class="d">85</td></tr></tbody></table></div></div><div class="card"><h2>בסוף</h2><p class="note">אחרי שכל שאר הפרקים גמורים · שני הממיינים הסופיים יחד</p><div class="scroll"><table><thead><tr><th>פרק</th><th>שם</th><th>מצב</th><th>מיון בסיסי (תכנית)</th><th>התקבל</th><th>מיון סופי (תכנית)</th><th>התקבל</th><th>עמודי חומר</th></tr></thead><tbody><tr><td class="k">י׳</td><td>יראת שמים ולימוד המוסר</td><td><span class="st wait">ממתין למיון סופי</span></td><td class="d">לפני התכנית</td><td class="d">✓</td><td class="d">א׳ כסלו</td><td class="d"></td><td class="d">185</td></tr></tbody></table></div></div></div>
+  </details>
   <footer>מתעדכן אוטומטית בימים א׳–ה׳ בערב</footer>
 </main>
 </body>
