@@ -85,9 +85,7 @@ def classify(path):
         kind = 'sample'
     elif 'טיוטא' in name or 'טיוטה' in name:
         kind = 'draft'
-    elif 'סופי' in name:
-        kind = 'final'  # קובץ מיון סופי שנשמר בתיקיית הבסיסי של הפרק
-    else:
+    else:  # מיון סופי נקבע רק לפי התיקייה "ממויין סופי" – לא לפי המילה "סופי" בשם הקובץ
         kind = stage
     return kind, (match(sub) or match(name))
 
