@@ -79,7 +79,7 @@ def classify(path):
         return 'other', match(name)
     parts = rest.split('/')
     sub = parts[0] if len(parts) > 1 else ''
-    if name.startswith('בדיקת'):
+    if name.startswith('בדיקת') or 'השינויים' in name:  # בדיקה, או מסמך השוואה ("השינויים מול הקובץ הבסיסי") – לא קובץ סופי
         kind = 'report'
     elif 'דוגמא' in name or 'דוגמה' in name:
         kind = 'sample'
@@ -189,6 +189,10 @@ def scan(listing_p, prev_p, chapters_p, out_p):
         if path not in curmap:
             new_events.append((stamp, heb(now.date()), p.get('ch', ''), 'removed',
                                f"הקובץ \"{p['name']}\" כבר לא נמצא ב\"{p.get('folder', '')}\" (הוסר או הועבר)"))
+
+    for c in auto.values():  # קובץ בסיסי שנשמר מחדש אחרי המיון הסופי: הבסיסי התקבל לכל המאוחר ביום של הסופי
+        if c.get('basic_done') and c.get('final_done') and c['basic_done'] > c['final_done']:
+            c['basic_done'], c['basic_done_he'] = c['final_done'], c.get('final_done_he', '')
 
     next_id = max([int(u.get('id', 0)) for u in events] + [0]) + 1
     for at, dhe, ch, kind, text in sorted(new_events):
