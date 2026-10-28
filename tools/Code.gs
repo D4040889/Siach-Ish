@@ -7,6 +7,8 @@
  *     אם רוצים לקבוע ידנית, כותבים תאריך בעמודות "ידני", והוא גובר.
  *   - קובצי PDF שמניחים בתיקיית ה-Drive (ראו "הגדרות") מופיעים בדף תחת "הקבצים הסופיים".
  *   - הסקריפט בונה את index.html ודוחף אותו למאגר ב-GitHub (GitHub Pages).
+ *     הוא שומר שם גם את התכנית וההגדרות (data/chapters.json, data/site.json), כך שהסריקה הלילית
+ *     בונה את אותו דף בדיוק (tools/build_page.js עם Builder.gs) גם בלי הסקריפט הזה.
  *
  * התקנה חד-פעמית: להריץ setup, ואז להכניס GITHUB_TOKEN ב-Project Settings → Script properties.
  */
@@ -164,11 +166,19 @@ function build() {
     var html = renderPage(model);
     var changed = [];
     var cur = ghGet_(st.repo, st.branch, 'index.html');
-    if (!cur || cur.text !== html) { ghPut_(st.repo, st.branch, 'index.html', html, 'עדכון הדף מהגיליון', cur && cur.sha); changed.push('index.html'); }
-    // התכנית ב-GitHub, כדי שהסריקה הלילית תדע את שמות הפרקים
-    var plan = JSON.stringify(chapters.map(function (c) { return { ord: c.ord, ch: c.ch, name: c.name, line: c.line, pages: c.pages, final_pages: c.final_pages, basic_from: c.basic_from, basic_to: c.basic_to, final_from: c.final_from, final_to: c.final_to, check: c.check, check_date: c.check_date }; }), null, 1);
+    if (!cur || cur.text !== html) {
+      var put = ghPut_(st.repo, st.branch, 'index.html', html, 'עדכון הדף מהגיליון', cur && cur.sha);
+      prop_('LAST_INDEX_SHA', (put && put.content && put.content.sha) || '');
+      changed.push('index.html');
+    } else prop_('LAST_INDEX_SHA', cur.sha);
+    // התכנית וההגדרות ב-GitHub, כדי שהסריקה הלילית תדע את שמות הפרקים ותבנה את אותו דף בדיוק
+    var plan = JSON.stringify(chapters.map(function (c) { return { ord: c.ord, ch: c.ch, name: c.name, line: c.line, pages: c.pages, final_pages: c.final_pages, basic_from: c.basic_from, basic_to: c.basic_to, final_from: c.final_from, final_to: c.final_to, check: c.check, check_date: c.check_date, basic_done_manual: c.basic_done_manual, final_done_manual: c.final_done_manual }; }), null, 1);
     var curPlan = ghGet_(st.repo, st.branch, 'data/chapters.json');
     if (!curPlan || curPlan.text !== plan) { ghPut_(st.repo, st.branch, 'data/chapters.json', plan, 'עדכון התכנית מהגיליון', curPlan && curPlan.sha); changed.push('data/chapters.json'); }
+    var site = JSON.stringify({ title: model.title, finish: String(model.finish || ''), footer: model.footer,
+      drive_downloads: model.downloads.filter(function (d) { return !d.path; }).map(function (d) { return { ch: d.ch, title: d.title, date_he: d.date_he, href: d.href }; }) }, null, 1);
+    var curSite = ghGet_(st.repo, st.branch, 'data/site.json');
+    if (!curSite || curSite.text !== site) { ghPut_(st.repo, st.branch, 'data/site.json', site, 'עדכון ההגדרות מהגיליון', curSite && curSite.sha); changed.push('data/site.json'); }
     writeAutoColumns_(model);
     prop_('LAST_SCAN_SHA', scan._sha || '');
     prop_('LAST_BUILD', now_());
@@ -237,10 +247,12 @@ function delayedBuild() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'delayedBuild') ScriptApp.deleteTrigger(t); });
   try { build(); } catch (e) { notify_('הדף הציבורי לא התעדכן', e.message); }
 }
-function hourlyTick() { // בונה רק אם הסריקה ב-GitHub השתנתה
+function hourlyTick() { // בונה אם הסריקה ב-GitHub השתנתה, או אם מישהו אחר שינה את index.html
   try {
-    var st = settings_(); var f = ghGet_(st.repo, st.branch, 'data/scan.json');
-    if (f && f.sha !== prop_('LAST_SCAN_SHA')) build();
+    var st = settings_();
+    var f = ghGet_(st.repo, st.branch, 'data/scan.json');
+    var ix = ghGet_(st.repo, st.branch, 'index.html');
+    if ((f && f.sha !== prop_('LAST_SCAN_SHA')) || (ix && ix.sha !== prop_('LAST_INDEX_SHA'))) build();
   } catch (e) { prop_('LAST_ERROR', now_() + ' ' + e.message); }
 }
 function dailyCheck() { // בבוקר: בנייה מלאה + התראה אם הסריקה לא רצה
