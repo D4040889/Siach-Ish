@@ -6,7 +6,7 @@
  *   chapters: [{ord, ch, name, line, pages, final_pages, basic_from, basic_to, final_from, final_to,
  *               basic_done, basic_src, basic_file, final_done, final_file, check, check_date}]  (תאריכים כ-YYYY-MM-DD)
  *   files:     רשימת הקבצים מהסריקה (לזיהוי "חלק המוסר" וכדומה)
- *   downloads: [{ch, title, date_he, href}]  כבר ממוינים
+ *   downloads: [{ch, title, date_he, href}]  (ממוינים כאן לפי סדר הא׳–ב׳ של הפרקים)
  *   finish:    יעד הסיום בעברית ('' אם אין)
  *   asof:      YYYY-MM-DD של הסריקה האחרונה (או היום)
  *   asof_he:   הטקסט ליד "עודכן:"
@@ -55,6 +55,13 @@ function span(a, b) {
   return pa.join(' ') === pb.join(' ') ? da + '–' + db + ' ' + pa.join(' ') : a + ' – ' + b;
 }
 
+/** מספר הפרק מתוך האותיות (א׳=1 … יח׳=18), למיון לפי סדר הא׳–ב׳ של הפרקים. */
+function chNum(ch) {
+  var v = { 'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9, 'י': 10, 'כ': 20, 'ל': 30 }, n = 0;
+  String(ch || '').split('').forEach(function (x) { n += v[x] || 0; });
+  return n || 99;
+}
+
 function chapterStatus(c, today) {
   function stage(k) {
     if (c[k + '_done']) return 'done';
@@ -91,6 +98,8 @@ var PAGE_CSS = ':root { --bg:#f7f6f2; --panel:#fff; --fg:#1f1e1b; --muted:#6b675
   'ul.chips li.fix { background:var(--warnbg); color:var(--warn); }\n' +
   'ul.chips li span { margin-inline-start:auto; font-size:.8rem; white-space:nowrap; }\n' +
   'ul.chips li.none { background:none; color:var(--muted); }\n' +
+  'ul.chips li.b { background:var(--bg); color:var(--fg); }\n' +
+  'ul.chips li.b span { color:var(--muted); }\n' +
   'ul.files { list-style:none; padding:0; margin:8px 0 0; }\n' +
   'ul.files li { display:flex; gap:8px; align-items:baseline; padding:8px 0; border-top:1px solid var(--line); font-size:.9rem; }\n' +
   'ul.files .t { flex:1; min-width:0; }\n' +
@@ -159,13 +168,21 @@ function renderPage(m) {
   var basicTotal = sum(C, function (c) { return +c.pages || 0; });
   var partsText = parts.length ? ' · ועוד ' + parts.map(function (p) { return 'חלק ה' + p[1]; }).join(', ') : '';
 
-  var chips = fin.map(function (c) {
-    return '<li class="' + (c.check ? 'fix' : 'ok') + '"><b>' + esc(c.ch) + '</b> ' + esc(c.name) + '<span>' + (c.check ? 'בתיקונים אחרונים' : 'מוכן') + '</span></li>';
-  }).join('');
-  chips += parts.map(function (p) { return '<li class="ok"><b>' + esc(p[0]) + '</b> ' + esc(names[p[0]] || '') + ' — חלק ה' + esc(p[1]) + '<span>מוכן</span></li>'; }).join('');
-  chips = chips || '<li class="none">עוד אין</li>';
+  // הפרקים המוכנים, לפי סדר הא׳–ב׳ של מספרי הפרקים
+  var chipItems = fin.map(function (c) {
+    return { ch: c.ch, h: '<li class="' + (c.check ? 'fix' : 'ok') + '"><b>' + esc(c.ch) + '</b> ' + esc(c.name) + '<span>' + (c.check ? 'בתיקונים אחרונים' : 'מוכן') + '</span></li>' };
+  }).concat(parts.map(function (p) { return { ch: p[0], h: '<li class="ok"><b>' + esc(p[0]) + '</b> ' + esc(names[p[0]] || '') + ' — חלק ה' + esc(p[1]) + '<span>מוכן</span></li>' }; }));
+  chipItems.sort(function (a, b) { return chNum(a.ch) - chNum(b.ch); });
+  var chips = chipItems.map(function (x) { return x.h; }).join('') || '<li class="none">עוד אין</li>';
 
-  var links = (m.downloads || []).map(function (d) {
+  // הפרקים שעברו מיון בסיסי (כולל אלה שעברו כבר גם מיון סופי), לפי סדר הא׳–ב׳
+  var basicChips = C.filter(function (c) { return c.basic_done; }).sort(function (a, b) { return chNum(a.ch) - chNum(b.ch); }).map(function (c) {
+    var st = chapterStatus(c, today);
+    var cls = c.final_done ? 'ok' : st[0] === 'late' ? 'fix' : 'b';
+    return '<li class="' + cls + '"><b>' + esc(c.ch) + '</b> ' + esc(c.name) + '<span>' + (c.final_done ? 'עבר גם מיון סופי' : esc(st[1])) + '</span></li>';
+  }).join('') || '<li class="none">עוד אין</li>';
+
+  var links = (m.downloads || []).slice().sort(function (a, b) { return chNum(a.ch) - chNum(b.ch); }).map(function (d) {
     return '<li><b>' + esc(d.ch) + '</b><span class="t">' + esc(d.title) + '</span><span class="dt">' + esc(d.date_he) + '</span>' +
       '<a href="' + esc(d.href) + '" target="_blank" rel="noopener">פתיחה</a></li>';
   }).join('');
@@ -201,7 +218,9 @@ function renderPage(m) {
     '    <div class="card"><div class="lbl">עמודי חומר שעברו מיון בסיסי</div><div class="num">' + num(basicDone) + '</div><div class="sub">מתוך ' + num(basicTotal) + ' עמודי חומר</div></div>\n' +
     '    <div class="card"><div class="lbl">מהעבודה כולה כבר נעשה</div><div class="num">' + actualPct + '%</div><div class="sub">מיון בסיסי וסופי של כל הפרקים</div></div>\n' +
     '  </section>\n  <section class="two">\n    <div class="card">\n      <h2>הפרקים שעברו מיון סופי</h2>\n      <ul class="chips">' + chips + '</ul>\n      ' +
-    (links ? '<h3>הקבצים הסופיים</h3><ul class="files">' + links + '</ul>' : '') + '\n    </div>\n    <div class="card">\n      <h2>ההתקדמות עד הסוף</h2>\n' +
+    (links ? '<h3>הקבצים הסופיים</h3><ul class="files">' + links + '</ul>' : '') + '\n    </div>\n' +
+    '    <div class="card">\n      <h2>הפרקים שעברו מיון בסיסי</h2>\n      <ul class="chips">' + basicChips + '</ul>\n    </div>\n' +
+    '    <div class="card">\n      <h2>ההתקדמות עד הסוף</h2>\n' +
     '      <p class="note">100% = כל הפרקים עברו מיון בסיסי וסופי' + (m.finish ? ' (עד ' + esc(m.finish) + ')' : '') + '</p>\n' +
     '      <div class="row"><div class="top"><span>כמה התקדמנו</span><span class="big">' + actualPct + '%</span></div><div class="bar"><i style="width:' + actualPct + '%"></i></div></div>\n' +
     '      <div class="row small"><div class="top"><span class="lbl2">לפי לוח העבודה</span><span class="big">' + planPct + '%</span></div><div class="bar"><i style="width:' + planPct + '%"></i></div>\n' +
