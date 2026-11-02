@@ -188,7 +188,10 @@ function renderPage(m) {
   }).join('');
 
   var tables = '';
-  [['קו 1', 'ממיין בסיסי 1 ← ממיין סופי 1'], ['קו 2', 'ממיין בסיסי 2 ← ממיין סופי 2'], ['בסוף', 'אחרי שכל שאר הפרקים גמורים · שני הממיינים הסופיים יחד']].forEach(function (ln) {
+  // הקבוצות בלוח הזמנים: מ-site.json (lines: [[שם, הערה], …]), ואם אין – הקווים של התכנית מי׳ חשון
+  var lines = (m.lines && m.lines.length) ? m.lines :
+    [['קו 1', 'ממיין בסיסי 1 ← ממיין סופי 1'], ['קו 2', 'ממיין בסיסי 2 ← ממיין סופי 2'], ['בסוף', 'אחרי שכל שאר הפרקים גמורים · שני הממיינים הסופיים יחד']];
+  lines.forEach(function (ln) {
     var lst = C.filter(function (c) { return c.line === ln[0]; });
     if (!lst.length) return;
     var trs = lst.map(function (c) {

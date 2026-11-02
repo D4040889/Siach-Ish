@@ -36,7 +36,7 @@ downloads = downloads.concat(site.drive_downloads || []);
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
 const asof = scan.asof ? scan.asof.slice(0, 10) : today;
 const model = { title: site.title || 'ספר ההדרכות', asof: asof, asof_he: scan.asof_he || B.hebDate(asof), finish: site.finish === undefined ? 'א׳ כסלו' : site.finish,
-  chapters: rows, files: scan.files || [], downloads: downloads, footer: site.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב' };
+  chapters: rows, files: scan.files || [], downloads: downloads, footer: site.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב', lines: site.lines || null };
 
 const html = B.renderPage(model);
 const out = path.join(repo, 'index.html');
