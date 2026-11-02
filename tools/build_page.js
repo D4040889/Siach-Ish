@@ -33,10 +33,18 @@ let downloads = (scan.downloads || []).map(d => {
   return { ord: c.ord || 99, path: d.path, ch: d.ch, title: (c.name || d.file) + (d.part ? ' — חלק ' + d.part : ''), date_he: d.date_he, href: d.pdf };
 }).sort((a, b) => (a.ord - b.ord) || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 downloads = downloads.concat(site.drive_downloads || []);
+// מספר העמודים בפועל בקבצים הסופיים: סופרים את העמודים ב-PDF שבמאגר (A4, כפי ש-LibreOffice יצר אותם)
+const pdfPages = href => {
+  const f = path.join(repo, href || '');
+  if (!/^files\/[0-9a-f]+\.pdf$/.test(href || '') || !fs.existsSync(f)) return 0;
+  const m = fs.readFileSync(f, 'latin1').match(/\/Type\s*\/Page(?![a-zA-Z])/g);
+  return m ? m.length : 0;
+};
+const realPages = downloads.reduce((s, d) => s + pdfPages(d.href), 0);
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
 const asof = scan.asof ? scan.asof.slice(0, 10) : today;
 const model = { title: site.title || 'ספר ההדרכות', asof: asof, asof_he: scan.asof_he || B.hebDate(asof), finish: site.finish === undefined ? 'א׳ כסלו' : site.finish,
-  chapters: rows, files: scan.files || [], downloads: downloads, footer: site.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב', lines: site.lines || null };
+  chapters: rows, files: scan.files || [], downloads: downloads, footer: site.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב', lines: site.lines || null, real_pages: realPages };
 
 const html = B.renderPage(model);
 const out = path.join(repo, 'index.html');

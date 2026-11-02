@@ -217,7 +217,9 @@ function renderPage(m) {
     '  <section class="kpis">\n' +
     '    <div class="card"><div class="lbl">פרקים שעברו מיון סופי</div><div class="num">' + fin.length + '</div><div class="sub">מתוך ' + C.length + ' פרקים' + esc(partsText) + '</div></div>\n' +
     '    <div class="card"><div class="lbl">פרקים שעברו מיון בסיסי</div><div class="num">' + basicCh + '</div><div class="sub">מתוך ' + C.length + ' פרקים · ' + basicNow + ' במיון עכשיו</div></div>\n' +
-    '    <div class="card"><div class="lbl">עמודים גמורים (הערכה)</div><div class="num">' + num(finalPages) + '</div><div class="sub">מתוך ' + num(finalPagesTotal) + ' בספר כולו</div></div>\n' +
+    (m.real_pages
+      ? '    <div class="card"><div class="lbl">עמודים גמורים</div><div class="num">' + num(m.real_pages) + '</div><div class="sub">בקבצים הסופיים, בעמודי A4</div></div>\n'
+      : '    <div class="card"><div class="lbl">עמודים גמורים (הערכה)</div><div class="num">' + num(finalPages) + '</div><div class="sub">מתוך ' + num(finalPagesTotal) + ' בספר כולו</div></div>\n') +
     '    <div class="card"><div class="lbl">עמודי חומר שעברו מיון בסיסי</div><div class="num">' + num(basicDone) + '</div><div class="sub">מתוך ' + num(basicTotal) + ' עמודי חומר</div></div>\n' +
     '    <div class="card"><div class="lbl">מהעבודה כולה כבר נעשה</div><div class="num">' + actualPct + '%</div><div class="sub">מיון בסיסי וסופי של כל הפרקים</div></div>\n' +
     '  </section>\n  <section class="two">\n    <div class="card">\n      <h2>הפרקים שעברו מיון סופי</h2>\n      <ul class="chips">' + chips + '</ul>\n      ' +
