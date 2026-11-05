@@ -50,7 +50,7 @@ const realPages = downloads.reduce((s, d) => s + pdfPages(d.href), 0);
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
 const asof = scan.asof ? scan.asof.slice(0, 10) : today;
 const model = { title: site.title || 'ספר ההדרכות', asof: asof, asof_he: scan.asof_he || B.hebDate(asof), finish: site.finish === undefined ? 'א׳ כסלו' : site.finish,
-  chapters: rows, files: scan.files || [], downloads: downloads, footer: site.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב', lines: site.lines || null, real_pages: realPages };
+  chapters: rows, files: scan.files || [], downloads: downloads, footer: site.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב', lines: site.lines || null, real_pages: realPages, people: site.people || null };
 
 const html = B.renderPage(model);
 const out = path.join(repo, 'index.html');

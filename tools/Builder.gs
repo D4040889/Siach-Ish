@@ -120,6 +120,11 @@ var PAGE_CSS = ':root { --bg:#f7f6f2; --panel:#fff; --fg:#1f1e1b; --muted:#6b675
   'details.more > summary::after { content:" ▾"; color:var(--muted); }\n' +
   'details.more[open] > summary::after { content:" ▴"; }\n' +
   '.more-body { display:flex; flex-direction:column; gap:14px; margin-top:16px; }\n' +
+  'ul.people { list-style:none; padding:0; margin:8px 0 0; }\n' +
+  'ul.people li { padding:10px 0; border-top:1px solid var(--line); }\n' +
+  'ul.people li:first-child { border-top:0; }\n' +
+  'ul.people .role { color:var(--muted); font-size:.8rem; margin-inline-start:8px; }\n' +
+  'ul.people .chs { display:block; margin-top:2px; }\n' +
   '.scroll { overflow-x:auto; margin-top:10px; }\n' +
   'table { width:100%; border-collapse:collapse; font-size:.85rem; }\n' +
   'th { text-align:start; font-weight:600; color:var(--muted); padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }\n' +
@@ -188,6 +193,20 @@ function renderPage(m) {
       '<a href="' + esc(d.href) + '" target="_blank" rel="noopener">פתיחה</a></li>';
   }).join('');
 
+  // לוח זמנים פשוט: שורה לכל עורך וממיין עם הפרקים שנשארו לו (site.json → people). פרק שנגמר יורד מהשורה מעצמו.
+  var chMap = {}; C.forEach(function (c) { chMap[c.ch] = c; });
+  var peopleRows = (m.people || []).map(function (p) {
+    var left = (p.items || []).map(function (it) {
+      var c = chMap[it.ch];
+      if (!c) return null;
+      if (it.fix) return c.check ? (it.label || 'תיקוני ' + c.ch) : null;
+      if (p.role === 'basic' ? c.basic_done : c.final_done) return null;
+      return c.ch + ' ' + c.name + (it.note ? ' (' + it.note + ')' : '') + (it.with_basic && !c.basic_done ? ' (גם המיון הבסיסי)' : '');
+    }).filter(function (x) { return x; });
+    return '<li><b>' + esc(p.name) + '</b><span class="role">' + (p.role === 'basic' ? 'מיון בסיסי' : 'מיון סופי') + '</span>' +
+      '<span class="chs">' + esc(left.length ? left.join(' · ') : 'סיים את כל מה שהיה אצלו') + '</span></li>';
+  }).join('');
+
   var tables = '';
   // הקבוצות בלוח הזמנים: מ-site.json (lines: [[שם, הערה], …]), ואם אין – הקווים של התכנית מי׳ חשון
   var lines = (m.lines && m.lines.length) ? m.lines :
@@ -231,7 +250,9 @@ function renderPage(m) {
     '      <div class="row"><div class="top"><span>כמה התקדמנו</span><span class="big">' + actualPct + '%</span></div><div class="bar"><i style="width:' + actualPct + '%"></i></div></div>\n' +
     '      <div class="row small"><div class="top"><span class="lbl2">לפי לוח העבודה</span><span class="big">' + planPct + '%</span></div><div class="bar"><i style="width:' + planPct + '%"></i></div>\n' +
     '      <div class="scale"><span>0%</span><span>100%</span></div></div>\n    </div>\n  </section>\n' +
-    '  <details class="more">\n    <summary>פירוט מלא: לוח הזמנים של כל הפרקים</summary>\n    <div class="more-body">' + tables + '</div>\n  </details>\n' +
+    (peopleRows
+      ? '  <section class="card">\n    <h2>מה נשאר לכל אחד</h2>\n    <ul class="people">' + peopleRows + '</ul>\n  </section>\n'
+      : '  <details class="more">\n    <summary>פירוט מלא: לוח הזמנים של כל הפרקים</summary>\n    <div class="more-body">' + tables + '</div>\n  </details>\n') +
     '  <footer>' + esc(m.footer || 'מתעדכן אוטומטית בימים א׳–ה׳ בערב') + '</footer>\n</main>\n</body>\n</html>\n';
 }
 
