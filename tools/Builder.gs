@@ -103,6 +103,7 @@ var PAGE_CSS = ':root { --bg:#f7f6f2; --panel:#fff; --fg:#1f1e1b; --muted:#6b675
   'ul.files { list-style:none; padding:0; margin:8px 0 0; }\n' +
   'ul.files li { display:flex; gap:8px; align-items:baseline; padding:8px 0; border-top:1px solid var(--line); font-size:.9rem; }\n' +
   'ul.files .t { flex:1; min-width:0; }\n' +
+  'ul.files .by { display:block; color:var(--muted); font-size:.8rem; }\n' +
   'ul.files .dt { color:var(--muted); font-size:.8rem; white-space:nowrap; }\n' +
   'ul.files a { color:var(--accent); font-weight:600; text-decoration:none; white-space:nowrap; }\n' +
   'ul.files a:hover { text-decoration:underline; }\n' +
@@ -183,7 +184,7 @@ function renderPage(m) {
   }).join('') || '<li class="none">עוד אין</li>';
 
   var links = (m.downloads || []).slice().sort(function (a, b) { return chNum(a.ch) - chNum(b.ch); }).map(function (d) {
-    return '<li><b>' + esc(d.ch) + '</b><span class="t">' + esc(d.title) + '</span><span class="dt">' + esc(d.date_he) + '</span>' +
+    return '<li><b>' + esc(d.ch) + '</b><span class="t">' + esc(d.title) + (d.by ? '<span class="by">' + esc(d.by) + '</span>' : '') + '</span><span class="dt">' + esc(d.date_he) + '</span>' +
       '<a href="' + esc(d.href) + '" target="_blank" rel="noopener">פתיחה</a></li>';
   }).join('');
 

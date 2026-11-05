@@ -28,9 +28,15 @@ const rows = chapters.map(c => {
     basic_file: a.basic_file || '', final_done: c.final_done_manual || a.final_done || '', final_file: a.final_file || '',
     check: c.check, check_date: c.check_date };
 });
+// מי מיין: site.json → sorters, לפי "פרק" או "פרק|חלק" (לחלק אין ירושה מהפרק כולו)
+const sorters = site.sorters || {};
+const sortedBy = d => {
+  const s = (d.part ? sorters[d.ch + '|' + d.part] : sorters[d.ch]) || {};
+  return [s.basic ? 'מיון בסיסי: ' + s.basic : '', s.final ? 'מיון סופי: ' + s.final : ''].filter(Boolean).join(' · ');
+};
 let downloads = (scan.downloads || []).map(d => {
   const c = byCh[d.ch] || {};
-  return { ord: c.ord || 99, path: d.path, ch: d.ch, title: (c.name || d.file) + (d.part ? ' — חלק ' + d.part : ''), date_he: d.date_he, href: d.pdf };
+  return { ord: c.ord || 99, path: d.path, ch: d.ch, title: (c.name || d.file) + (d.part ? ' — חלק ' + d.part : ''), date_he: d.date_he, href: d.pdf, by: sortedBy(d) };
 }).sort((a, b) => (a.ord - b.ord) || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 downloads = downloads.concat(site.drive_downloads || []);
 // מספר העמודים בפועל בקבצים הסופיים: סופרים את העמודים ב-PDF שבמאגר (A4, כפי ש-LibreOffice יצר אותם)
