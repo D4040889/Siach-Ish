@@ -201,7 +201,8 @@ def scan(listing_p, prev_p, chapters_p, out_p):
     # הורדות: קבצי המיון הסופי. שומרים את ה-PDF הקיים אם הקובץ לא השתנה.
     prev_dl = {d['path']: d for d in prev.get('downloads', [])}
     downloads, todo = [], []
-    finals = [f for f in cur if f['kind'] == 'final' and f['ch'] and f['name'].lower().endswith(('.docx', '.doc', '.pdf'))]
+    holds = {c['ch'] for c in plan if c.get('hold_download')}  # פרקים שהקובץ הסופי שלהם לא עולה לאתר עדיין
+    finals = [f for f in cur if f['kind'] == 'final' and f['ch'] and f['ch'] not in holds and f['name'].lower().endswith(('.docx', '.doc', '.pdf'))]
     for f in finals:
         old = prev_dl.get(f['path'])
         if old and old.get('pdf') and old.get('mtime') == f['mtime']:

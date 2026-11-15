@@ -69,7 +69,7 @@ function chapterStatus(c, today) {
     return today > c[k + '_to'] ? 'late' : today >= c[k + '_from'] ? 'now' : 'future';
   }
   var b = stage('basic'), f = stage('final');
-  if (f === 'done') return c.check ? ['fix', 'עבר מיון סופי · בתיקונים אחרונים'] : ['ok', 'עבר מיון סופי'];
+  if (f === 'done') return c.check ? ['fix', 'עבר מיון סופי · ' + (c.check_label || 'בתיקונים אחרונים')] : ['ok', 'עבר מיון סופי'];
   if (b === 'done' && f === 'late') return ['late', 'מיון סופי באיחור'];
   if (b === 'done' && f === 'now') return ['now', 'במיון סופי'];
   if (b === 'done') return ['wait', 'ממתין למיון סופי'];
@@ -176,7 +176,7 @@ function renderPage(m) {
 
   // הפרקים המוכנים, לפי סדר הא׳–ב׳ של מספרי הפרקים
   var chipItems = fin.map(function (c) {
-    return { ch: c.ch, h: '<li class="' + (c.check ? 'fix' : 'ok') + '"><b>' + esc(c.ch) + '</b> ' + esc(c.name) + '<span>' + (c.check ? 'בתיקונים אחרונים' : 'מוכן') + '</span></li>' };
+    return { ch: c.ch, h: '<li class="' + (c.check ? 'fix' : 'ok') + '"><b>' + esc(c.ch) + '</b> ' + esc(c.name) + '<span>' + (c.check ? (c.check_label || 'בתיקונים אחרונים') : 'מוכן') + '</span></li>' };
   }).concat(parts.map(function (p) { return { ch: p[0], h: '<li class="ok"><b>' + esc(p[0]) + '</b> ' + esc(names[p[0]] || '') + ' — חלק ה' + esc(p[1]) + '<span>מוכן</span></li>' }; }));
   chipItems.sort(function (a, b) { return chNum(a.ch) - chNum(b.ch); });
   var chips = chipItems.map(function (x) { return x.h; }).join('') || '<li class="none">עוד אין</li>';

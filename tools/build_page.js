@@ -26,7 +26,7 @@ const rows = chapters.map(c => {
     basic_done: c.basic_done_manual || a.basic_done || '',
     basic_src: c.basic_from ? (a.basic_src === 'לפני התכנית' ? 'תיקייה' : (a.basic_src || '')) : 'לפני התכנית',
     basic_file: a.basic_file || '', final_done: c.final_done_manual || a.final_done || '', final_file: a.final_file || '',
-    check: c.check, check_date: c.check_date };
+    check: c.check, check_date: c.check_date, check_label: c.check_label || '' };
 });
 // מי מיין: site.json → sorters, לפי "פרק" או "פרק|חלק" (לחלק אין ירושה מהפרק כולו)
 const sorters = site.sorters || {};

@@ -220,8 +220,10 @@
   "basic_to": "2026-11-12",
   "final_from": "2026-11-11",
   "final_to": "2026-11-15",
-  "check": "",
-  "check_date": ""
+  "check": "צריך עוד תיקונים",
+  "check_date": "2026-11-15",
+  "check_label": "צריך עוד תיקונים",
+  "hold_download": true
  },
  {
   "ord": 17,
